@@ -1,13 +1,13 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 
-	"github.com/go-chi/chi/v5"
-	"gopkg.in/yaml.v2"
-
 	"bytes"
+
+	"github.com/go-chi/chi/v5"
 )
 
 type Task struct {
@@ -44,7 +44,7 @@ var tasks = map[string]Task{
 // Ниже напишите обработчики для каждого эндпоинта
 // ...
 func getAll(w http.ResponseWriter, r *http.Request) {
-	resp, err := yaml.Marshal(tasks)
+	resp, err := json.Marshal(tasks)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -63,7 +63,7 @@ func postTask(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = yaml.Unmarshal(buf.Bytes(), &task); err != nil {
+	if err = json.Unmarshal(buf.Bytes(), &task); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
@@ -78,11 +78,11 @@ func getTask(w http.ResponseWriter, r *http.Request) {
 
 	task, ok := tasks[id]
 	if !ok {
-		http.Error(w, "Тест не найден", http.StatusBadRequest)
+		http.Error(w, "Задача не найдена", http.StatusBadRequest)
 		return
 	}
 
-	resp, err := yaml.Marshal(task)
+	resp, err := json.Marshal(task)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
@@ -96,7 +96,7 @@ func delTask(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
 	_, ok := tasks[id]
 	if !ok {
-		http.Error(w, "Тест не найден", http.StatusBadRequest)
+		http.Error(w, "Задача не найдена", http.StatusBadRequest)
 		return
 	}
 
@@ -104,7 +104,7 @@ func delTask(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	w.Write([]byte(`{"message": "Тест удален"}`))
+	w.Write([]byte(`{"message": "Задача удалена"}`))
 }
 func main() {
 	r := chi.NewRouter()
